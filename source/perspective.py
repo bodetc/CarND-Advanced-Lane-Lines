@@ -1,17 +1,15 @@
 import cv2
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 import numpy as np
 
-src = ((260, 720),(606, 454),(677,454),(1120,720))
-dest = ((260, 720),(260, 454),(1120,454),(1120,720))
+class Perspective:
+    """A class for performing perspective transformation on the lane lines"""
 
-x1=(260, 720)
-x2=(606, 454)
-x3=(677,454)
-x4=(1120,720)
+    M = None
 
-img = cv2.imread('tests/perspective/snapshot.png')
+    def __init__(self, src = np.float32([[260, 685], [575, 465], [712, 465], [1050, 685]]),
+        dst = np.float32([[260, 720], [260, 0], [1050, 0], [1050, 720]])):
 
-plt.imshow(img)
-plt.plot(x1, '.')
+        self.M = cv2.getPerspectiveTransform(src, dst)
+
+    def warpPerspective(self, image):
+        return cv2.warpPerspective(image, self.M, (1280, 720), flags=cv2.INTER_LINEAR)

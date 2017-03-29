@@ -1,18 +1,14 @@
-import cv2
 import glob
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-import numpy as np
 
-from source.thresholds import combined_threshold
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 
 from source.calibration import Calibration
-
-src = np.float32([[260, 685], [575, 465], [712, 465], [1050, 685]])
-dst = np.float32([[260, 720], [260, 0], [1050, 0], [1050, 720]])
-M = cv2.getPerspectiveTransform(src, dst)
+from source.perspective import Perspective
+from source.thresholds import combined_threshold
 
 calibration = Calibration(pickle_file='camera_cal/cam_dist_pickle.p')
+perspective = Perspective()
 
 # Make a list of test images
 images = glob.glob('test_images/*.jpg')
@@ -22,7 +18,7 @@ for idx, fname in enumerate(images):
     img = mpimg.imread(fname)
 
     dst = calibration.undistort(img)
-    image = cv2.warpPerspective(dst, M, (1280, 720), flags=cv2.INTER_LINEAR)
+    image = perspective.warpPerspective(dst)
     final = combined_threshold(image)
 
     # Plot the result

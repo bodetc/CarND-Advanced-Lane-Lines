@@ -5,7 +5,7 @@ import matplotlib.image as mpimg
 from source.calibration import Calibration
 from source.perspective import Perspective
 from source.thresholds import combined_threshold
-from source.finding_lines import find_lines
+from source.finding_lines import find_lines, refit_line, find_lines_curvature
 
 calibration = Calibration(pickle_file='camera_cal/cam_dist_pickle.p')
 perspective = Perspective()
@@ -21,7 +21,11 @@ for idx, fname in enumerate(images):
     image = perspective.warpPerspective(dst)
     binary_warped = combined_threshold(image)
 
-    out_img = find_lines(binary_warped, plot=True)
+    left_fit, right_fit = find_lines(binary_warped, plot=False)
+
+    left_fit, right_fit = refit_line(binary_warped, left_fit, right_fit, plot=True)
+
+    find_lines_curvature(left_fit, right_fit)
 
     # # Plot the result
     # f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 9))
@@ -35,12 +39,12 @@ for idx, fname in enumerate(images):
     # plt.show()
 
 
-def process_image(img):
-    dst = calibration.undistort(img)
-    image = perspective.warpPerspective(dst)
-    binary_warped = combined_threshold(image)
-
-    return find_lines(binary_warped)
+# def process_image(img):
+#     dst = calibration.undistort(img)
+#     image = perspective.warpPerspective(dst)
+#     binary_warped = combined_threshold(image)
+#
+#     return find_lines(binary_warped)
 
 
 from source.video import process_video

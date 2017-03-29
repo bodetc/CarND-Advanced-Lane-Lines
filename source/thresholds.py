@@ -88,7 +88,7 @@ def combined_threshold(image):
     grady = abs_sobel_thresh(image, orient='y', sobel_kernel=ksize, thresh=(20, 100))
     mag_binary = mag_thresh(image, sobel_kernel=ksize, mag_thresh=(30, 100))
     dir_binary = dir_threshold(image, sobel_kernel=ksize, thresh=(0.9, 1.3))
-    hls_binary = hls_select(image, thresh=(120, 255))
+    hls_binary = hls_select(image, thresh=(170, 255))
     # combine the threshold
     combined = np.zeros_like(dir_binary)
     combined[(gradx == 1) | ((hls_binary == 1) & (dir_binary == 1))] = 1

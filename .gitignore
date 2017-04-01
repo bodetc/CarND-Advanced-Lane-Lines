@@ -2,5 +2,5 @@
 source/__pycache__/
 
 tests/*/*.mp4
-tests/*/*.png
+tests/*/*.jpg
 camera_cal/cam_dist_pickle.p

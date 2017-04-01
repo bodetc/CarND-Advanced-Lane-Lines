@@ -18,12 +18,12 @@ for idx, fname in enumerate(images):
     img = mpimg.imread(fname)
 
     dst = calibration.undistort(img)
-    image = perspective.warpPerspective(dst)
-    binary_warped = combined_threshold(image)
+    binary = combined_threshold(dst)
+    binary_warped = perspective.warpPerspective(binary)
 
-    left_fit, right_fit = find_lines(binary_warped, plot=False)
+    left_fit, right_fit = find_lines(binary_warped, plot=True)
 
-    left_fit, right_fit = refit_line(binary_warped, left_fit, right_fit, plot=True)
+    left_fit, right_fit = refit_line(binary_warped, left_fit, right_fit, plot=False)
 
     find_lines_curvature(left_fit, right_fit)
 

@@ -6,8 +6,8 @@ class Perspective:
 
     M = None
 
-    def __init__(self, src = np.float32([[260, 685], [575, 465], [712, 465], [1050, 685]]),
-        dst = np.float32([[260, 720], [260, 0], [1050, 0], [1050, 720]])):
+    def __init__(self, src = np.float32([[260, 685], [595, 450], [685, 450], [1050, 685]]),
+             dst=np.float32([[320, 720], [320, 0], [960, 0], [960, 720]])):
 
         self.M = cv2.getPerspectiveTransform(src, dst)
 

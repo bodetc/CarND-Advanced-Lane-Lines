@@ -82,7 +82,7 @@ def hls_select(img, thresh=(0, 255)):
 
 def combined_threshold(image):
     # Choose a Sobel kernel size
-    ksize = 3  # Choose a larger odd number to smooth gradient measurements
+    ksize = 5  # Choose a larger odd number to smooth gradient measurements
     # Apply each of the thresholding functions
     gradx = abs_sobel_thresh(image, orient='x', sobel_kernel=ksize, thresh=(20, 100))
     grady = abs_sobel_thresh(image, orient='y', sobel_kernel=ksize, thresh=(20, 100))
@@ -91,5 +91,5 @@ def combined_threshold(image):
     hls_binary = hls_select(image, thresh=(170, 255))
     # combine the threshold
     combined = np.zeros_like(dir_binary)
-    combined[(gradx == 1) | ((hls_binary == 1) & (dir_binary == 1))] = 1
+    combined[(gradx == 1) | (hls_binary == 1)] = 1
     return combined

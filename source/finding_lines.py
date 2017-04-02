@@ -153,34 +153,6 @@ def refit_line(binary_warped, left_fit, right_fit, plot=False):
     return left_fit, right_fit
 
 
-# Define conversions in x and y from pixels space to meters
-ym_per_pix = 3. / 110.  # meters per pixel in y dimension
-xm_per_pix = 3.7 / 640.  # meters per pixel in x dimension
-
-
-def find_line_curvature(fit):
-    # Define y-value where we want radius of curvature
-    # I'll choose the maximum y-value, corresponding to the bottom of the image
-    y_eval = 720
-
-    y_eval_rs = y_eval * ym_per_pix
-    A_rs = fit[0] * xm_per_pix / ym_per_pix ** 2
-    B_rs = fit[1] * xm_per_pix / ym_per_pix
-
-    curverad = ((1 + (2 * A_rs * y_eval_rs + B_rs) ** 2) ** 1.5) / np.absolute(2 * A_rs)
-
-    return curverad
-
-
-def find_lines_curvature(left_fit, right_fit):
-    left_curverad = find_line_curvature(left_fit)
-    right_curverad = find_line_curvature(right_fit)
-
-    print(left_curverad, right_curverad)
-
-    return left_curverad, right_curverad
-
-
 def get_points_for_plotting(binary_warped, left_fit, right_fit):
     # Generate x and y values for plotting
     ploty = np.linspace(0, binary_warped.shape[0] - 1, binary_warped.shape[0])

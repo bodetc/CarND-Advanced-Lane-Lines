@@ -1,11 +1,12 @@
 import glob
 
 import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 
 from source.calibration import Calibration
+from source.finding_lines import find_lines, refit_line, find_lines_curvature, get_lane
 from source.perspective import Perspective
 from source.thresholds import combined_threshold
-from source.finding_lines import find_lines, refit_line, find_lines_curvature
 
 calibration = Calibration(pickle_file='camera_cal/cam_dist_pickle.p')
 perspective = Perspective()
@@ -27,26 +28,23 @@ for idx, fname in enumerate(images):
 
     find_lines_curvature(left_fit, right_fit)
 
-    # # Plot the result
-    # f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 9))
-    # f.tight_layout()
-    # ax1.imshow(img)
-    # ax1.set_title('Original Image', fontsize=50)
-    # ax2.imshow(binary_warped, cmap='gray')
-    # ax2.set_title('Thresholded Gradient', fontsize=50)
-    # plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
-    #
-    # plt.show()
+    final = get_lane(dst, binary_warped, perspective, left_fit, right_fit)
+
+    plt.imshow(final)
+
+    plt.show()
 
 
-# def process_image(img):
-#     dst = calibration.undistort(img)
-#     image = perspective.warpPerspective(dst)
-#     binary_warped = combined_threshold(image)
-#
-#     return find_lines(binary_warped)
+def process_image(img):
+    dst = calibration.undistort(img)
+    image = perspective.warpPerspective(dst)
+    binary_warped = combined_threshold(image)
+
+    left_fit, right_fit = find_lines(binary_warped)
+
+    return get_lane(dst, binary_warped, perspective, left_fit, right_fit)
 
 
 from source.video import process_video
 
-# process_video('project_video.mp4', 'tests/finding_lines/project_video.mp4', process_image)
+process_video('project_video.mp4', 'tests/finding_lines/project_video.mp4', process_image)

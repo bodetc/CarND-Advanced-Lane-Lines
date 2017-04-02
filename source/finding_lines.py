@@ -1,6 +1,6 @@
-import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def find_lines(binary_warped, plot=False):
@@ -74,16 +74,14 @@ def find_lines(binary_warped, plot=False):
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
 
-    # Generate x and y values for plotting
-    ploty = np.linspace(0, binary_warped.shape[0] - 1, binary_warped.shape[0])
-    left_fitx = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
-    right_fitx = right_fit[0] * ploty ** 2 + right_fit[1] * ploty + right_fit[2]
-
-    out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
-    out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
-    out_img = np.asarray(out_img, dtype=np.dtype(np.uint8))
-
     if plot:
+        # Generate x and y values for plotting
+        ploty, left_fitx, right_fitx = get_points_for_plotting(binary_warped, left_fit, right_fit)
+
+        out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
+        out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
+        out_img = np.asarray(out_img, dtype=np.dtype(np.uint8))
+
         plt.imshow(np.asarray(out_img, dtype=np.dtype(np.uint8)))
         plt.plot(left_fitx, ploty, color='yellow')
         plt.plot(right_fitx, ploty, color='yellow')
@@ -117,12 +115,11 @@ def refit_line(binary_warped, left_fit, right_fit, plot=False):
     # Fit a second order polynomial to each
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
-    # Generate x and y values for plotting
-    ploty = np.linspace(0, binary_warped.shape[0] - 1, binary_warped.shape[0])
-    left_fitx = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
-    right_fitx = right_fit[0] * ploty ** 2 + right_fit[1] * ploty + right_fit[2]
 
     if plot:
+        # Generate x and y values for plotting
+        ploty, left_fitx, right_fitx = get_points_for_plotting(binary_warped, left_fit, right_fit)
+
         # Create an image to draw on and an image to show the selection window
         out_img = np.dstack((binary_warped, binary_warped, binary_warped)) * 255
         window_img = np.zeros_like(out_img)
@@ -157,8 +154,9 @@ def refit_line(binary_warped, left_fit, right_fit, plot=False):
 
 
 # Define conversions in x and y from pixels space to meters
-ym_per_pix = 3./130. # meters per pixel in y dimension
-xm_per_pix = 3.7/(1050.-260.) # meters per pixel in x dimension
+ym_per_pix = 3. / 110.  # meters per pixel in y dimension
+xm_per_pix = 3.7 / 640.  # meters per pixel in x dimension
+
 
 def find_line_curvature(fit):
     # Define y-value where we want radius of curvature
@@ -166,7 +164,7 @@ def find_line_curvature(fit):
     y_eval = 720
 
     y_eval_rs = y_eval * ym_per_pix
-    A_rs = fit[0] * xm_per_pix / ym_per_pix**2
+    A_rs = fit[0] * xm_per_pix / ym_per_pix ** 2
     B_rs = fit[1] * xm_per_pix / ym_per_pix
 
     curverad = ((1 + (2 * A_rs * y_eval_rs + B_rs) ** 2) ** 1.5) / np.absolute(2 * A_rs)
@@ -181,3 +179,37 @@ def find_lines_curvature(left_fit, right_fit):
     print(left_curverad, right_curverad)
 
     return left_curverad, right_curverad
+
+
+def get_points_for_plotting(binary_warped, left_fit, right_fit):
+    # Generate x and y values for plotting
+    ploty = np.linspace(0, binary_warped.shape[0] - 1, binary_warped.shape[0])
+    left_fitx = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
+    right_fitx = right_fit[0] * ploty ** 2 + right_fit[1] * ploty + right_fit[2]
+
+    return ploty, left_fitx, right_fitx
+
+
+def get_lane(undist, binary_warped, perspective, left_fit, right_fit):
+    # Generate x and y values for plotting
+    ploty, left_fitx, right_fitx = get_points_for_plotting(binary_warped, left_fit, right_fit)
+
+    # Create an image to draw the lines on
+    warp_zero = np.zeros_like(binary_warped).astype(np.uint8)
+    color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
+
+    # Recast the x and y points into usable format for cv2.fillPoly()
+    pts_left = np.array([np.transpose(np.vstack([left_fitx, ploty]))])
+    pts_right = np.array([np.flipud(np.transpose(np.vstack([right_fitx, ploty])))])
+    pts = np.hstack((pts_left, pts_right))
+
+    # Draw the lane onto the warped blank image
+    cv2.fillPoly(color_warp, np.int_([pts]), (0, 255, 0))
+
+    # Warp the blank back to original image space using inverse perspective matrix (Minv)
+    newwarp = perspective.unwarpPerspective(color_warp)
+
+    # Combine the result with the original image
+    result = cv2.addWeighted(undist, 1, newwarp, 0.3, 0)
+
+    return result

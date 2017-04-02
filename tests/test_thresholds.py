@@ -1,14 +1,15 @@
 import glob
 
+import cv2
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
+import numpy as np
 
+from source import util
 from source.calibration import Calibration
-from source.perspective import Perspective
 from source.thresholds import combined_threshold
 
 calibration = Calibration(pickle_file='camera_cal/cam_dist_pickle.p')
-perspective = Perspective()
 
 # Make a list of test images
 images = glob.glob('test_images/*.jpg')
@@ -18,8 +19,7 @@ for idx, fname in enumerate(images):
     img = mpimg.imread(fname)
 
     dst = calibration.undistort(img)
-    image = perspective.warpPerspective(dst)
-    final = combined_threshold(image)
+    final = combined_threshold(dst)
 
     # Plot the result
     f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 9))
@@ -31,3 +31,15 @@ for idx, fname in enumerate(images):
     plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
 
     plt.show()
+
+    mpimg.imsave('tests/thresholds/' + util.get_filename(fname), final)
+
+from source.video import process_video
+
+
+def process_image(img):
+    binary = combined_threshold(img)
+    out_img = np.dstack((binary, binary, binary)) * 254
+    return np.asarray(out_img, dtype=np.dtype(np.uint8))
+
+process_video('project_video.mp4', 'tests/thresholds/project_video.mp4', process_image)

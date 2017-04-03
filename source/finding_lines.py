@@ -187,3 +187,10 @@ def plot_lane(undist, binary_warped, perspective, left_fit, right_fit):
     result = cv2.addWeighted(undist, 1, newwarp, 0.3, 0)
 
     return result
+
+
+def add_caption(image, curvature, offcenter):
+    image = cv2.putText(image, "Radius of curvature: {:.2f}m".format(curvature), (20, 50),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
+    return cv2.putText(image, "Distance from lane center: {:.2f}m".format(offcenter), (20, 100),
+                       cv2.FONT_HERSHEY_SIMPLEX, 1, 255)

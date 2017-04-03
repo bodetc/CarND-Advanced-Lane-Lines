@@ -1,7 +1,7 @@
 import numpy as np
 
 # Define conversions in x and y from pixels space to meters
-ym_per_pix = 3. / 110.  # meters per pixel in y dimension
+ym_per_pix = 3. / 80.  # meters per pixel in y dimension
 xm_per_pix = 3.7 / 640.  # meters per pixel in x dimension
 
 # Define y-value where we want radius of curvature

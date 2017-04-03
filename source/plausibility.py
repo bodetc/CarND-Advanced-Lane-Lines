@@ -13,7 +13,7 @@ def check_plausibility(left_fit, right_fit):
     # Only check curved roads, as the curvature radius for straight roads can be very noisy
     if mean_curverad < 700:
         ratio = left_curverad / right_curverad
-        if ratio < 0.5 or ratio > 2:
+        if ratio < 1 / 1.7 or ratio > 1.7:
             print('Ignoring frame due to curve radius: left:', left_curverad, ' right:', right_curverad)
             return False
 

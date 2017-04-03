@@ -1,8 +1,8 @@
 import numpy as np
 
 from source.calibration import Calibration
-from source.finding_lines import find_lines, plot_lane, refit_line
-from source.observables import get_line_base_position, get_radius_of_curvature
+from source.finding_lines import find_lines, plot_lane, refit_line, add_caption
+from source.observables import get_line_base_position, get_radius_of_curvature, get_lane_size, find_lines_curvature
 from source.perspective import Perspective
 from source.plausibility import check_plausibility
 from source.thresholds import combined_threshold
@@ -39,12 +39,13 @@ class Line():
         self.radius_of_curvature = get_radius_of_curvature(fit)
         self.line_base_pos = get_line_base_position(fit)
 
-        # if self.best_fit is not None:
-        #    self.best_fit = .5 * fit + .5 * self.best_fit
-        # else:
         self.best_fit = fit
 
-        self.bestx = self.best_fit[0] * ploty ** 2 + self.best_fit[1] * ploty + self.best_fit[2]
+        if self.bestx is None:
+            self.bestx = self.best_fit[0] * ploty ** 2 + self.best_fit[1] * ploty + self.best_fit[2]
+        else:
+            self.bestx = .5 * self.bestx + .5 * (
+            self.best_fit[0] * ploty ** 2 + self.best_fit[1] * ploty + self.best_fit[2])
 
     def do_not_update_fit(self):
         self.detected = False
@@ -63,7 +64,7 @@ def process_image(img):
     image = perspective.warpPerspective(dst)
     binary_warped = combined_threshold(image)
 
-    if left_line.best_fit is None or right_line.best_fit is None\
+    if left_line.best_fit is None or right_line.best_fit is None \
             or left_line.last_detected > 5 or right_line.last_detected > 5:
         print('Searching for lane on full image')
         left_fit, right_fit = find_lines(binary_warped)
@@ -77,7 +78,13 @@ def process_image(img):
         left_line.do_not_update_fit()
         right_line.do_not_update_fit()
 
-    return plot_lane(dst, binary_warped, perspective, left_line.best_fit, right_line.best_fit)
+    lane_width, off_center = get_lane_size(left_fit, right_fit)
+    left_curverad, right_curverad, mean_curverad = find_lines_curvature(left_fit, right_fit)
+
+    final = plot_lane(dst, binary_warped, perspective, left_fit, right_fit)
+    final = add_caption(final, mean_curverad, off_center)
+
+    return final
 
 
 from source.video import process_video

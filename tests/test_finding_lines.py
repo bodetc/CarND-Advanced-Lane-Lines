@@ -4,7 +4,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 
 from source.calibration import Calibration
-from source.finding_lines import find_lines, refit_line, get_lane
+from source.finding_lines import find_lines, refit_line, plot_lane
 from source.observables import print_observables
 from source.perspective import Perspective
 from source.thresholds import combined_threshold
@@ -29,7 +29,7 @@ for idx, fname in enumerate(images):
 
     print_observables(left_fit, right_fit)
 
-    final = get_lane(dst, binary_warped, perspective, left_fit, right_fit)
+    final = plot_lane(dst, binary_warped, perspective, left_fit, right_fit)
 
     plt.imshow(final)
 
@@ -43,9 +43,9 @@ def process_image(img):
 
     left_fit, right_fit = find_lines(binary_warped)
 
-    return get_lane(dst, binary_warped, perspective, left_fit, right_fit)
+    return plot_lane(dst, binary_warped, perspective, left_fit, right_fit)
 
 
 from source.video import process_video
 
-#process_video('project_video.mp4', 'tests/finding_lines/project_video.mp4', process_image)
+process_video('project_video.mp4', 'tests/finding_lines/project_video.mp4', process_image)

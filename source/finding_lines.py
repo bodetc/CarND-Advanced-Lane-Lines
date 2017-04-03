@@ -76,7 +76,7 @@ def find_lines(binary_warped, plot=False):
 
     if plot:
         # Generate x and y values for plotting
-        ploty, left_fitx, right_fitx = get_points_for_plotting(binary_warped, left_fit, right_fit)
+        ploty, left_fitx, right_fitx = get_points_for_plotting(left_fit, right_fit)
 
         out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
         out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
@@ -118,7 +118,7 @@ def refit_line(binary_warped, left_fit, right_fit, plot=False):
 
     if plot:
         # Generate x and y values for plotting
-        ploty, left_fitx, right_fitx = get_points_for_plotting(binary_warped, left_fit, right_fit)
+        ploty, left_fitx, right_fitx = get_points_for_plotting(left_fit, right_fit)
 
         # Create an image to draw on and an image to show the selection window
         out_img = np.dstack((binary_warped, binary_warped, binary_warped)) * 255
@@ -153,18 +153,20 @@ def refit_line(binary_warped, left_fit, right_fit, plot=False):
     return left_fit, right_fit
 
 
-def get_points_for_plotting(binary_warped, left_fit, right_fit):
+ploty = np.linspace(0, 719, 720)
+
+
+def get_points_for_plotting(left_fit, right_fit):
     # Generate x and y values for plotting
-    ploty = np.linspace(0, binary_warped.shape[0] - 1, binary_warped.shape[0])
     left_fitx = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
     right_fitx = right_fit[0] * ploty ** 2 + right_fit[1] * ploty + right_fit[2]
 
     return ploty, left_fitx, right_fitx
 
 
-def get_lane(undist, binary_warped, perspective, left_fit, right_fit):
+def plot_lane(undist, binary_warped, perspective, left_fit, right_fit):
     # Generate x and y values for plotting
-    ploty, left_fitx, right_fitx = get_points_for_plotting(binary_warped, left_fit, right_fit)
+    ploty, left_fitx, right_fitx = get_points_for_plotting(left_fit, right_fit)
 
     # Create an image to draw the lines on
     warp_zero = np.zeros_like(binary_warped).astype(np.uint8)

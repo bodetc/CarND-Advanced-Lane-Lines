@@ -10,7 +10,7 @@ y_eval = 720
 y_eval_rs = y_eval * ym_per_pix
 
 
-def find_line_curvature(fit):
+def get_radius_of_curvature(fit):
     A_rs = fit[0] * xm_per_pix / ym_per_pix ** 2
     B_rs = fit[1] * xm_per_pix / ym_per_pix
 
@@ -20,26 +20,29 @@ def find_line_curvature(fit):
 
 
 def find_lines_curvature(left_fit, right_fit):
-    left_curverad = find_line_curvature(left_fit)
-    right_curverad = find_line_curvature(right_fit)
+    left_curverad = get_radius_of_curvature(left_fit)
+    right_curverad = get_radius_of_curvature(right_fit)
+    mean_curverad = np.sqrt(left_curverad * right_curverad)
+    return left_curverad, right_curverad, mean_curverad
 
-    return left_curverad, right_curverad
 
-def get_line_at_bottom(fit):
+def get_line_base_position(fit):
     x = np.polyval(fit, y_eval)
     return (x - 640) * xm_per_pix
 
+
 def get_lane_size(left_fit, right_fit):
-    left_x = get_line_at_bottom(left_fit)
-    right_x = get_line_at_bottom(right_fit)
+    left_x = get_line_base_position(left_fit)
+    right_x = get_line_base_position(right_fit)
 
     lane_width = right_x - left_x
-    off_center = (left_x + right_x)/2
+    off_center = (left_x + right_x) / 2
 
     return lane_width, off_center
 
+
 def print_observables(left_fit, right_fit):
-    left_curverad, right_curverad = find_lines_curvature(left_fit, right_fit)
-    print('Curvature:', np.sqrt(left_curverad * right_curverad), 'm')
+    left_curverad, right_curverad, mean_curverad = find_lines_curvature(left_fit, right_fit)
+    print('Curvature:', mean_curverad, 'm, left-right ratio:', left_curverad/right_curverad)
     lane_width, off_center = get_lane_size(left_fit, right_fit)
-    print('Width:',lane_width, 'm, off-center', off_center, 'm')
+    print('Width:', lane_width, 'm, off-center', off_center, 'm')

@@ -9,6 +9,7 @@ from source.finding_lines import find_lines, refit_line, plot_lane, add_caption
 from source.observables import print_observables, find_lines_curvature, get_lane_size
 from source.perspective import Perspective
 from source.thresholds import combined_threshold
+from source.video import process_video
 
 calibration = Calibration(pickle_file='camera_cal/cam_dist_pickle.p')
 perspective = Perspective()
@@ -24,11 +25,11 @@ for idx, fname in enumerate(images):
     binary = combined_threshold(dst)
     binary_warped = perspective.warpPerspective(binary)
 
-    left_fit, right_fit = find_lines(binary_warped, plot=False,
-                                     filename='tests/finding_lines/plot_' + util.get_filename(fname))
+    left_fit, right_fit = find_lines(binary_warped, plot=True,
+                                     filename='output_images/finding_lines/plot_' + util.get_filename(fname))
 
-    left_fit, right_fit = refit_line(binary_warped, left_fit, right_fit, plot=False,
-                                     filename='tests/finding_lines/plot_refit_' + util.get_filename(fname))
+    left_fit, right_fit = refit_line(binary_warped, left_fit, right_fit, plot=True,
+                                     filename='output_images/finding_lines/plot_refit_' + util.get_filename(fname))
 
     print_observables(left_fit, right_fit)
 
@@ -40,7 +41,7 @@ for idx, fname in enumerate(images):
 
     plt.imshow(final)
 
-    mpimg.imsave('tests/finding_lines/' + util.get_filename(fname), final)
+    mpimg.imsave('output_images/finding_lines/' + util.get_filename(fname), final)
 
     plt.show()
 
@@ -54,4 +55,5 @@ def process_image(img):
 
     return plot_lane(dst, binary_warped, perspective, left_fit, right_fit)
 
-# process_video('project_video.mp4', 'tests/finding_lines/project_video.mp4', process_image)
+
+process_video('project_video.mp4', 'output_videos/finding_lines/project_video.mp4', process_image)

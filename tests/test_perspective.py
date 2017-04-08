@@ -45,9 +45,9 @@ for idx, fname in enumerate(images):
     ax2.plot(960, 720, '.')
     ax2.set_title('Transformed Image', fontsize=30)
 
-    plt.savefig('tests/perspective/plot_' + util.get_filename(fname))
+    plt.savefig('output_images/perspective/plot_' + util.get_filename(fname))
 
-    mpimg.imsave('tests/perspective/' + util.get_filename(fname), gray)
+    mpimg.imsave('output_images/perspective/' + util.get_filename(fname), gray)
 
     plt.show()
 
@@ -61,4 +61,4 @@ def wrap(img):
 
 from source.video import process_video
 
-process_video('project_video.mp4', 'tests/perspective/project_video.mp4', wrap)
+process_video('project_video.mp4', 'output_videos/perspective/project_video.mp4', wrap)

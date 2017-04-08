@@ -32,7 +32,7 @@ for idx, fname in enumerate(images):
 
     plt.show()
 
-    mpimg.imsave('tests/thresholds/' + util.get_filename(fname), cv2.cvtColor(final * 255, cv2.COLOR_GRAY2BGR))
+    mpimg.imsave('output_images/thresholds/' + util.get_filename(fname), cv2.cvtColor(final * 255, cv2.COLOR_GRAY2BGR))
 
 from source.video import process_video
 
@@ -42,4 +42,5 @@ def process_image(img):
     out_img = np.dstack((binary, binary, binary)) * 254
     return np.asarray(out_img, dtype=np.dtype(np.uint8))
 
-process_video('project_video.mp4', 'tests/thresholds/project_video.mp4', process_image)
+
+process_video('project_video.mp4', 'output_videos/thresholds/project_video.mp4', process_image)

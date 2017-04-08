@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def find_lines(binary_warped, plot=False):
+def find_lines(binary_warped, plot=False, filename='plot.jpg'):
     # Assuming you have created a warped binary image called "binary_warped"
     # Take a histogram of the bottom half of the image
     histogram = np.sum(binary_warped[binary_warped.shape[0] / 2:, :], axis=0)
@@ -11,9 +11,11 @@ def find_lines(binary_warped, plot=False):
     out_img = np.dstack((binary_warped, binary_warped, binary_warped)) * 255
     # Find the peak of the left and right halves of the histogram
     # These will be the starting point for the left and right lines
-    midpoint = np.int(histogram.shape[0] / 2)
-    leftx_base = np.argmax(histogram[:midpoint])
-    rightx_base = np.argmax(histogram[midpoint:]) + midpoint
+    size = np.int(histogram.shape[0])
+    midpoint = np.int(size / 2)
+    corner = np.int(size / 8)
+    leftx_base = np.argmax(histogram[corner:midpoint]) + corner
+    rightx_base = np.argmax(histogram[midpoint:size - corner]) + midpoint
 
     # Choose the number of sliding windows
     nwindows = 9
@@ -88,12 +90,14 @@ def find_lines(binary_warped, plot=False):
         plt.xlim(0, 1280)
         plt.ylim(720, 0)
 
+        plt.savefig(filename)
+
         plt.show()
 
     return left_fit, right_fit
 
 
-def refit_line(binary_warped, left_fit, right_fit, plot=False):
+def refit_line(binary_warped, left_fit, right_fit, plot=False, filename='plot.jpg'):
     # Assume you now have a new warped binary image
     # from the next frame of video (also called "binary_warped")
     # It's now much easier to find line pixels!
@@ -147,6 +151,8 @@ def refit_line(binary_warped, left_fit, right_fit, plot=False):
         plt.plot(right_fitx, ploty, color='yellow')
         plt.xlim(0, 1280)
         plt.ylim(720, 0)
+
+        plt.savefig(filename)
 
         plt.show()
 

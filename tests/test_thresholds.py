@@ -32,7 +32,7 @@ for idx, fname in enumerate(images):
 
     plt.show()
 
-    mpimg.imsave('tests/thresholds/' + util.get_filename(fname), final)
+    mpimg.imsave('tests/thresholds/' + util.get_filename(fname), cv2.cvtColor(final * 255, cv2.COLOR_GRAY2BGR))
 
 from source.video import process_video
 

@@ -61,8 +61,8 @@ perspective = Perspective()
 
 def process_image(img):
     dst = calibration.undistort(img)
-    image = perspective.warpPerspective(dst)
-    binary_warped = combined_threshold(image)
+    binary = combined_threshold(dst)
+    binary_warped = perspective.warpPerspective(binary)
 
     if left_line.best_fit is None or right_line.best_fit is None \
             or left_line.last_detected > 5 or right_line.last_detected > 5:
@@ -89,4 +89,4 @@ def process_image(img):
 
 from source.video import process_video
 
-process_video('project_video.mp4', 'tests/project_video.mp4', process_image)
+process_video('project_video.mp4', 'output_videos/project_video.mp4', process_image)

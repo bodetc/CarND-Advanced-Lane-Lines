@@ -3,6 +3,7 @@ import glob
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 
+from source import util
 from source.calibration import Calibration
 from source.finding_lines import find_lines, refit_line, plot_lane, add_caption
 from source.observables import print_observables, find_lines_curvature, get_lane_size
@@ -23,9 +24,11 @@ for idx, fname in enumerate(images):
     binary = combined_threshold(dst)
     binary_warped = perspective.warpPerspective(binary)
 
-    left_fit, right_fit = find_lines(binary_warped, plot=True)
+    left_fit, right_fit = find_lines(binary_warped, plot=False,
+                                     filename='tests/finding_lines/plot_' + util.get_filename(fname))
 
-    left_fit, right_fit = refit_line(binary_warped, left_fit, right_fit, plot=False)
+    left_fit, right_fit = refit_line(binary_warped, left_fit, right_fit, plot=False,
+                                     filename='tests/finding_lines/plot_refit_' + util.get_filename(fname))
 
     print_observables(left_fit, right_fit)
 
@@ -36,6 +39,8 @@ for idx, fname in enumerate(images):
     final = add_caption(final, mean_curverad, off_center)
 
     plt.imshow(final)
+
+    mpimg.imsave('tests/finding_lines/' + util.get_filename(fname), final)
 
     plt.show()
 

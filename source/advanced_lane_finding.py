@@ -90,3 +90,5 @@ def process_image(img):
 from source.video import process_video
 
 process_video('project_video.mp4', 'output_videos/project_video.mp4', process_image)
+process_video('challenge_video.mp4', 'output_videos/challenge_video.mp4', process_image)
+process_video('harder_challenge_video.mp4', 'output_videos/harder_challenge_video.mp4', process_image)

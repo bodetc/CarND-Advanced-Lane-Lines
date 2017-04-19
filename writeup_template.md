@@ -13,7 +13,7 @@ The pipeline contains the following steps:
 * Creation of a thresholded binary image,
 * Applying a perspective transform to create a bird's eye view,
 * Implementation of a lane finding algorithm
-* Determination of the lane curvature and vehicle postion within the lane,
+* Determination of the lane curvature and vehicle position within the lane,
 * Plotting the resulting lanes boundaries and numerical observables back into the original image.
 
 Finally, the developed picture pipeline is transformed into a video pipeline and applied to the provided project video.
@@ -23,7 +23,7 @@ This project can also be found on [GitHub](https://github.com/bodetc/CarND-Advan
 [//]: # (Image References)
 
 [original_calibration]: ./camera_cal/calibration4.jpg "Original"
-[undistorted_calibration]: ./tests/calibration/calibration4.jpg "Undistorted"
+[undistorted_calibration]: ./output_images/calibration/calibration4.jpg "Undistorted"
 [original]: ./test_images/test2.jpg "Original"
 [undistorted]: ./output_images/calibration/test2.jpg "Undistorted"
 [thresholds]: ./output_images/thresholds/test2.jpg "Undistorted"
@@ -71,10 +71,30 @@ Once undistorted, the example image looks like this:
 The code for generating thresholded binary images is located in `source/thresholds.py`
 The code for performing the transformation on the test images is in `tests/test_thresholds.py`.
 
-After multiple manual tests, a combined threshold was chosen where either of the two threshold was active (`or` combination):
-* A binary threshold for the X-gradient with values between 20 and 100.
-* A S-channel threshold with values between 170 and 255.
+* A color selection threshold `color` that selects colors using hard coded thresholds in the HLS space.
+This threshold selection is presented [here](https://medium.com/towards-data-science/robust-lane-finding-using-advanced-computer-vision-techniques-mid-project-update-540387e95ed3)
+and was suggested as reading material by the first reviewer of the this project.
+The first step is to transform the image into HLS space
+This allows for a more robust detection with different brightness condition as the luminance is stored in a separate channel.
+Then, the lines are selected using two binary threshold filters.
+The yellow filter will select pixel with HLS values between `[0, 80, 200]` and `[40, 255, 255]`.
+The white filter will select pixel with HLS values between `[20, 0, 200]` and `[255, 80, 255]`.
+* A binary threshold `gradx` for the X-gradient with values between 20 and 100.
+* A S-channel `hls_binary` threshold with values between 170 and 255.
 This threshold first convert the image to HLS before performing a binary selection on the S channel.
+* A direction threshold gradient `dir_binary` that select pixels where the gradient direction is between 0.9 and 1.3 radians.
+
+Those thresholds are combined in the following way:
+`(color == 1) | (((gradx == 1) | (hls_binary == 1)) & (dir_binary == 1))`
+After manual testing on problematic frames of the videos (see `test_images\vlcsnap-*`)
+this combination seem to be providing the best solution in most conditions,
+including under shadows and with bright concrete.
+
+Finally, in order to remove some of the noise that was still selected through the thresholding, erosion is applied to the combined image.
+The [OpenCV function](http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_morphological_ops/py_morphological_ops.html)
+is used with a kernel of 11x11 to remove the noisy patches.
+This method was suggested in [this blog](https://medium.com/@ajsmilutin/advanced-lane-finding-5d0be4072514)
+that covers the same project and that was suggested by the first reviewer.
 
 Here is the sample image after applying thresholding
 ![alt text][thresholds]
@@ -175,6 +195,7 @@ The plausibility check is implemented in the method `check_plausibility` of `sou
 The first check ensure that the lane width has plausible values (between 2.5 and 4.5 meters).
 The second check ensure that the the two lane lines have similar curvature, i.e. that the ratio of their curvature is included between 1/1.7 and 1.7.
 This check is only performed if the road has a curvature under 700 meters, as the curvature measurement for straight lines is unstable.
+In that case, it is also checked that the curvature of both lane lines is in the same direction.
 
 The video pipeline can be found in `source\advanced_lane_finding.py`
 Here's a [link to my video result](./output_videos/project_video.mp4)
@@ -193,3 +214,11 @@ Furthermore, the lane lines could be masked by snow or leaves and prevent this a
 Also, in dense traffic, they might not be enough distance to the preceding car to have a long enough clear view to properly fit the lane lines.
 
 In Germany, lanes overriden within road works by adding yellow lines to the roads, the existing white lines are not removed but must be ignore. This case would not at all be supported by the current version of the pipeline.
+
+##Remark
+
+In order to be complete, and avoid any claims of plagiarism, 
+I was encountering the same _black plot_ problem as in [this StackOverflow question](http://stackoverflow.com/questions/42044259/getting-black-plots-with-plt-imshow-after-multiplying-image-array-by-a-scalar).
+I solved the problem by converting the arrays to uint8 as suggested.
+It is clear from the screenshots that this question relates to the current project, I prefer to mention that I saw this post and used the result.
+I must say however that this question mainly concerns a technical aspect of the project.

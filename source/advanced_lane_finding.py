@@ -1,7 +1,7 @@
 import numpy as np
 
 from source.calibration import Calibration
-from source.finding_lines import find_lines, plot_lane, refit_line, add_caption
+from source.finding_lines import find_lines, plot_lane, refit_line, add_caption, plot_lane_points
 from source.observables import get_line_base_position, get_radius_of_curvature, get_lane_size, find_lines_curvature
 from source.perspective import Perspective
 from source.plausibility import check_plausibility
@@ -44,7 +44,7 @@ class Line():
         if self.bestx is None:
             self.bestx = self.best_fit[0] * ploty ** 2 + self.best_fit[1] * ploty + self.best_fit[2]
         else:
-            self.bestx = .5 * self.bestx + .5 * (
+            self.bestx = .7 * self.bestx + .3 * (
             self.best_fit[0] * ploty ** 2 + self.best_fit[1] * ploty + self.best_fit[2])
 
     def do_not_update_fit(self):
@@ -71,7 +71,7 @@ def process_image(img):
     else:
         left_fit, right_fit = refit_line(binary_warped, left_line.best_fit, right_line.best_fit)
 
-    if check_plausibility(left_fit, right_fit):
+    if check_plausibility(left_fit, right_fit, left_line, right_line):
         left_line.update_fit(left_fit)
         right_line.update_fit(right_fit)
     else:
@@ -81,7 +81,7 @@ def process_image(img):
     lane_width, off_center = get_lane_size(left_fit, right_fit)
     left_curverad, right_curverad, mean_curverad = find_lines_curvature(left_fit, right_fit)
 
-    final = plot_lane(dst, binary_warped, perspective, left_fit, right_fit)
+    final = plot_lane_points(dst, binary_warped, perspective, ploty, left_line.bestx, right_line.bestx)
     final = add_caption(final, mean_curverad, off_center)
 
     return final

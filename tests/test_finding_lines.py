@@ -55,5 +55,4 @@ def process_image(img):
 
     return plot_lane(dst, binary_warped, perspective, left_fit, right_fit)
 
-
-process_video('project_video.mp4', 'output_videos/finding_lines/project_video.mp4', process_image)
+# process_video('project_video.mp4', 'output_videos/finding_lines/project_video.mp4', process_image)

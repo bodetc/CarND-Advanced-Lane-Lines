@@ -170,10 +170,7 @@ def get_points_for_plotting(left_fit, right_fit):
     return ploty, left_fitx, right_fitx
 
 
-def plot_lane(undist, binary_warped, perspective, left_fit, right_fit):
-    # Generate x and y values for plotting
-    ploty, left_fitx, right_fitx = get_points_for_plotting(left_fit, right_fit)
-
+def plot_lane_points(undist, binary_warped, perspective, ploty, left_fitx, right_fitx):
     # Create an image to draw the lines on
     warp_zero = np.zeros_like(binary_warped).astype(np.uint8)
     color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
@@ -193,6 +190,13 @@ def plot_lane(undist, binary_warped, perspective, left_fit, right_fit):
     result = cv2.addWeighted(undist, 1, newwarp, 0.3, 0)
 
     return result
+
+
+def plot_lane(undist, binary_warped, perspective, left_fit, right_fit):
+    # Generate x and y values for plotting
+    ploty, left_fitx, right_fitx = get_points_for_plotting(left_fit, right_fit)
+
+    return plot_lane_points(undist, binary_warped, perspective, ploty, left_fitx, right_fitx)
 
 
 def add_caption(image, curvature, offcenter):

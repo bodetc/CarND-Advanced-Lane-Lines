@@ -9,7 +9,7 @@ class Perspective:
     Minv = None
 
     def __init__(self, src=np.float32([[260, 685], [595, 450], [685, 450], [1050, 685]]),
-                 dst=np.float32([[320, 720], [320, 0], [960, 0], [960, 720]])):
+                 dst=np.float32([[320, 720], [320, -360], [960, -360], [960, 720]])):
         self.M = cv2.getPerspectiveTransform(src, dst)
         self.Minv = cv2.getPerspectiveTransform(dst, src)
 
